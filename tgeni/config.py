@@ -16,4 +16,9 @@ class Config(object):
 
 class TestConfig(Config):
     TESTING = True
+    # anti-forgery stuff
+    WTF_CSRF_ENABLED = False
+    # set up password encryption
+    BCRYPT_LOG_ROUNDS = 1
+    # initialize database settings
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(TMPDIR, 'tgeni_test.sqlite3')

@@ -7,14 +7,6 @@ from flask import (Response, flash, redirect, render_template,
                    request, url_for)
 from flask_login import (login_required, login_user, logout_user, current_user)
 
-@tgeni.route('/')
-def home_():
-    return redirect(url_for('home'))
-
-@tgeni.route('/home')
-def home():
-    return render_template('home.html')
-
 @tgeni.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -50,17 +42,36 @@ def signout():
     logout_user()
     return redirect(url_for('home'))
 
+
+
 @login_manager.user_loader
 def load_user(id):
     return models.User.query.get(int(id))
 
-@tgeni.errorhandler(401)
+
+
+@tgeni.errorhandler(400)
 def fail_login(er):
-    return '<h2>Login failed.</h2>'
+    return '<h2>Oh no, 400!</h2>'
+
+@tgeni.errorhandler(403)
+def fail_login(er):
+    return '<h2>Oh no, 403!</h2>'
 
 @tgeni.errorhandler(404)
 def not_found_404(er):
     return '<h2>Oh no, 404!</h2>'
+
+
+
+@tgeni.route('/')
+def home_():
+    return redirect(url_for('home'))
+
+@tgeni.route('/home')
+def home():
+    return render_template('home.html')
+
 
 @tgeni.route('/index')
 @login_required
@@ -73,10 +84,26 @@ def index():
 @tgeni.route('/edit_trip/<trip_id>', methods = ['GET', 'POST'])
 @login_required
 def add_trip(trip_id=None):
-    trip = models.Trip.query.get(trip_id) if trip_id else models.Trip()
+    ######
+    if trip_id:
+        trip = models.Trip.query.get(trip_id)
+        if trip:
+            pass
+            #if current_user not in trip.users:
+                # Trip with this id exists but the logged-in user is
+                #  not on it.
+            #    return flask.abort(403)
+            # else:
+            #   Trip id exists and the logged-in user is on it.
+        else:
+            # No trip with this id exists!
+            return flask.abort(400)
+    else:
+        # Trip id not provided, which means this is a new a trip.
+        trip = models.Trip()
+    ######
     form = forms.NewTripForm(obj=trip)
     if form.validate_on_submit(): # handles POST?
-        form.populate_obj(trip)
         db.session.add(trip)
         db.session.commit()
         return redirect(url_for('index'))

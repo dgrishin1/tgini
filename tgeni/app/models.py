@@ -35,12 +35,6 @@ class User(db.Model, flask_login.UserMixin):
         return crypt.check_password_hash(self._password, plaintext_password)
 
     # required methods for flask_login...
-    def is_authenticated(self):
-        return True
-    def is_active(self):
-        return True
-    def is_anonymous(self):
-        return False
     def get_id(self):
         return self.id
 
